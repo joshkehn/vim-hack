@@ -43,7 +43,7 @@ if exists("php_parent_error_open")
 else
   syn region phpComment start="/\*" end="\*/" contained contains=phpTodo,@Spell extend
 endif
-syn match phpComment "//.\{-}\(?>\|$\)\@=" contained extend contains=phpTodo,@Spell
+syn match phpComment "//.\{-}\(\(|\)\@<!?>\|$\)\@=" contained extend contains=phpTodo,@Spell
 
 " Hack type declarations.
 syn keyword hackTypeDecl type newtype shape contained
@@ -67,8 +67,18 @@ syn keyword phpStatement yield await contained
 syn keyword phpException finally contained
 syn keyword phpStorageClass async contained
 
+" Fix ?> region end patterns to not match |?> (nullable pipe operator).
+syn keyword phpRegion NotAKeyword
+syn clear   phpRegion
+
 " <?hh opener.
 syn region phpRegion matchgroup=Delimiter keepend
   \ start=+<?hh\( // partial\| // strict\| // decl\|\)+
-  \ end=+?>+
+  \ end=+\(|\)\@<!?>+
+  \ contains=@phpClTop
+
+" <?php opener (from base php.vim, with nullable pipe fix).
+syn region phpRegion matchgroup=Delimiter keepend
+  \ start=+<?\(php\|=\)+
+  \ end=+\(|\)\@<!?>+
   \ contains=@phpClTop
